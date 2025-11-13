@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wox_xo)-7uxxc(zo7^zir8$9n55%j%)yb4@gdat4##)#23!xak'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -125,3 +125,22 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+INSTALLED_APPS += ['csp']
+
+MIDDLEWARE += ['csp.middleware.CSPMiddleware']
+
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'script-src': ("'self'", 'https://trusted.cdn.com'),
+        'style-src': ("'self'", 'https://trusted.cdn.com'),
+    }
+}
