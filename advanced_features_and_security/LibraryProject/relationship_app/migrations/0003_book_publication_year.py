@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='book',
             name='publication_year',
-            field=models.IntegerField(null=True, blank=True),
+            field=models.IntegerField(default='-'),
             preserve_default=False,
         ),
     ]
