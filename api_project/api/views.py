@@ -8,6 +8,6 @@ class BookList(generics.ListAPIView):
     queryset = Book.objects.all()          # ✅ Query all Book objects
     serializer_class = BookSerializer      # ✅ Use BookSerializer for output
     # new viewset for full CRUD
-class BookViewSet(viewsets. ModelViewSet):
+class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
