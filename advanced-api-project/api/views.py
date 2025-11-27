@@ -2,11 +2,15 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework import generics, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters import rest_framework as filters 
-
+from django_filters import rest_framework as filters
 from .models import Book
 from .serializers import BookSerializer
 import datetime
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from django.contrib.auth.models import User
+from .models import Author
 
 class BookListView(generics.ListAPIView):
     """
@@ -19,12 +23,10 @@ class BookListView(generics.ListAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]  # anyone can view
  # Advanced query capabilities
     filter_backends = [
-        filters.DjangoFilterBackend,
-        filters.SearchFilter,       
-        filters.OrderingFilter,    
+        filters.DjangoFilterBackend,   
+        SearchFilter,                 
+        OrderingFilter,                
     ]
-
-
     filterset_fields = ['title', 'author__name', 'publication_year']
     search_fields = ['title', 'author__name']
     ordering_fields = ['title', 'publication_year']
@@ -87,3 +89,23 @@ class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticated]
+
+def test_update_book_authenticated(self):
+    """Ensure authenticated user can update a book."""
+    url = reverse("book-update", args=[self.book.id])   # ✅ pass pk
+    data = {
+        "title": "Updated Title",
+        "publication_year": 1958,
+        "author": self.author.id,
+    }
+    response = self.client.put(url, data)
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    self.book.refresh_from_db()
+    self.assertEqual(self.book.title, "Updated Title")
+
+def test_delete_book_authenticated(self):
+    """Ensure authenticated user can delete a book."""
+    url = reverse("book-delete", args=[self.book.id])   # ✅ pass pk
+    response = self.client.delete(url)
+    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    self.assertEqual(Book.objects.count(), 0)
