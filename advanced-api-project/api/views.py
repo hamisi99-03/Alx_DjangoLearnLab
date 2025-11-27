@@ -20,9 +20,10 @@ class BookListView(generics.ListAPIView):
  # Advanced query capabilities
     filter_backends = [
         filters.DjangoFilterBackend,
-        SearchFilter,
-        filters.OrderingFilter,   
+        filters.SearchFilter,       
+        filters.OrderingFilter,    
     ]
+
 
     filterset_fields = ['title', 'author__name', 'publication_year']
     search_fields = ['title', 'author__name']
