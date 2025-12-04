@@ -15,3 +15,6 @@ Secure password handling (Django hashing)
 CSRF protection on all forms
 
 Automatic profile creation using Django signals
+
+Overview
+The blog app provides CRUD (Create, Read, Update, Delete) functionality for managing blog posts. Posts are stored in the database and can be managed through both the Django admin panel and custom views/templates.
