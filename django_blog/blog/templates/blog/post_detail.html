@@ -1,10 +1,18 @@
-
 {% extends "blog/base.html" %}
 {% block content %}
   <article>
     <h2>{{ post.title }}</h2>
     <p>{{ post.content }}</p>
-    <p><small>By {{ post.author }} on {{ post.created_at }}</small></p>
+    <p><small>By {{ post.author }} on {{ post.created_at|date:"M d, Y H:i" }}</small></p>
+
+    {% if post.tags.all %}
+      <p>
+        Tags:
+        {% for tag in post.tags.all %}
+          <a href="{% url 'tag-posts' tag.name %}">#{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% endif %}
 
     <p>
       <a href="{% url 'post-update' post.pk %}">Edit Post</a> |
@@ -17,7 +25,7 @@
     <h3>Comments ({{ comments|length }})</h3>
 
     {% if user.is_authenticated %}
-      <form method="post" action="{% url 'comment-create' post_pk=post.pk %}">
+      <form method="post" action="{% url 'comment-create' pk=post.pk %}">
         {% csrf_token %}
         {{ comment_form.as_p }}
         <button type="submit">Add Comment</button>
@@ -30,7 +38,7 @@
       {% for comment in comments %}
         <li>
           <p>{{ comment.content }}</p>
-          <small>By {{ comment.author }} on {{ comment.created_at }}</small>
+          <small>By {{ comment.author }} on {{ comment.created_at|date:"M d, Y H:i" }}</small>
           {% if user == comment.author %}
             <div>
               <a href="{% url 'comment-update' comment.pk %}">Edit</a>

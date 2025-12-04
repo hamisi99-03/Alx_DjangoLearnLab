@@ -46,3 +46,16 @@ Testing checklist
 - Only the comment author sees Edit/Delete for their comments.
 - Editing updates the content and timestamp; deletion removes the comment and redirects back to the post.
 - URL names work in templates with {% url %} tags.
+Testing and documentation
+- Create tags: In the post form, enter comma-separated tags. After saving, tags appear under the post title and link to the tag view.
+- Edit tags: Open a post in edit mode, change the tag list; tags are created if new and removed if omitted.
+- Search: Use the search bar; results include matches in title, content, or tag names.
+- Permissions: Only authors can edit/delete posts; anyone can view and search; tags are public.
+- Quick checks:
+- Tags route: /tags/<tag_name>/ shows posts filtered by tag.
+- Search route: /search/?q=django returns posts with “django” in title, content, or tags.
+- Case-insensitivity: Tags stored as lowercase; searching is case-insensitive.
+- Notes for maintainability:
+- Normalization: Storing tags in lowercase avoids duplicates (“Django” vs “django”).
+- Indexing (optional): Add indexes on Post.title and Tag.name for larger datasets.
+- Taggit option: If you later adopt django-taggit, replace the Tag model and form logic with TaggableManager and taggit forms.
