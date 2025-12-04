@@ -7,6 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
+from django.views import View
 
 from .forms import CustomUserCreationForm, PostForm, CommentForm
 from .models import Post, Comment, Tag
@@ -173,3 +174,20 @@ class SearchView(ListView):
         ctx = super().get_context_data(**kwargs)
         ctx['query'] = self.request.GET.get('q', '')
         return ctx
+
+class SearchView(View):
+    template_name = 'blog/search_results.html'
+
+    def get(self, request):
+        query = request.GET.get('q', '').strip()
+        posts = Post.objects.all()
+        if query:
+            posts = Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return render(request, self.template_name, {
+            'query': query,
+            'posts': posts,
+        })
