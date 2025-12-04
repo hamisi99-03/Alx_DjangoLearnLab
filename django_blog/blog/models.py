@@ -11,3 +11,14 @@ def __str__(self):
 
 
 
+
+def user_profile_upload_path(instance, filename):
+    return f'profiles/user_{instance.user_id}/{filename}'
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to=user_profile_upload_path, blank=True, null=True)
+
+    def __str__(self):
+        return f'Profile of {self.user.username}'
