@@ -1,11 +1,8 @@
-# blog/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .models import Post
-from .models import Tag
-from .models import Comment
+from taggit.forms import TagWidget   # ✅ import TagWidget
+from .models import Profile, Post, Comment
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -32,18 +29,15 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ['bio', 'profile_picture']
 
-
-
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content']  # author is set in the view
+        fields = ['title', 'content', 'tags']   # ✅ include tags
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Post title'}),
             'content': forms.Textarea(attrs={'rows': 8, 'placeholder': 'Write your post...'}),
+            'tags': TagWidget(),   # ✅ use TagWidget for taggit integration
         }
-
-
 
 class CommentForm(forms.ModelForm):
     class Meta:
@@ -58,32 +52,3 @@ class CommentForm(forms.ModelForm):
         if not content:
             raise forms.ValidationError('Comment cannot be empty.')
         return content
-
-class PostForm(forms.ModelForm):
-    # Accept comma-separated tags; simpler than custom widgets
-    tag_names = forms.CharField(
-        required=False,
-        help_text='Comma-separated tags (e.g., tech, django, tips)',
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., django, backend, tips'})
-    )
-
-    class Meta:
-        model = Post
-        fields = ['title', 'content', 'tag_names']
-
-    def save(self, author=None, commit=True):
-        post = super().save(commit=False)
-        if author is not None:
-            post.author = author
-        if commit:
-            post.save()
-
-        # Sync tags
-        raw = self.cleaned_data.get('tag_names', '')
-        names = [n.strip() for n in raw.split(',') if n.strip()]
-        tag_objs = []
-        for name in names:
-            tag, _ = Tag.objects.get_or_create(name=name.lower())
-            tag_objs.append(tag)
-        post.tags.set(tag_objs)
-        return post
