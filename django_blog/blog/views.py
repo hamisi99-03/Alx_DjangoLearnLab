@@ -191,3 +191,19 @@ class SearchView(View):
             'query': query,
             'posts': posts,
         })
+    
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/tag_posts.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # taggit stores tags with slug field automatically
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        return Post.objects.filter(tags__slug=self.tag.slug).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['tag'] = self.tag
+        return ctx
