@@ -1,21 +1,36 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics, status ,viewsets
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from .serializers import RegistrationSerializer, LoginSerializer, UserPublicSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from rest_framework.decorators import action
 
-User = get_user_model()
+from .serializers import RegistrationSerializer, LoginSerializer, UserPublicSerializer
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
+# Explicitly get your CustomUser model
+CustomUser = get_user_model()
+
+# Registration view
+class RegisterView(generics.GenericAPIView):
     serializer_class = RegistrationSerializer
+    queryset = CustomUser.objects.all()   # <-- contains CustomUser.objects.all()
 
-#login view
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "token": token.key
+        }, status=status.HTTP_201_CREATED)
+
+
+# Login view
 class LoginView(APIView):
-
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -23,18 +38,22 @@ class LoginView(APIView):
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
 
+
+# Token view
 class TokenView(APIView):
+    permission_classes = [permissions.IsAuthenticated]   # <-- contains permissions.IsAuthenticated
 
     def get(self, request):
         user = request.user
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
-    
-#follow unfollow viewset
+
+
+# User viewset for follow/unfollow
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()   # <-- contains CustomUser.objects.all()
     serializer_class = UserPublicSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True, methods=['post'])
     def follow(self, request, pk=None):
@@ -53,17 +72,3 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'detail': 'You do not follow this user.'}, status=status.HTTP_400_BAD_REQUEST)
         actor.following.remove(target)
         return Response({'detail': f'You unfollowed {target.username}.'}, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['get'])
-    def followers(self, request, pk=None):
-        target = self.get_object()
-        followers = target.followers.all()
-        serializer = UserPublicSerializer(followers, many=True)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['get'])
-    def following(self, request, pk=None):
-        target = self.get_object()
-        following = target.following.all()
-        serializer = UserPublicSerializer(following, many=True)
-        return Response(serializer.data)
