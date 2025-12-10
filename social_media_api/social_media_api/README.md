@@ -353,3 +353,65 @@ create comment
 - Filtering (Posts only): ?search=keyword
 
 
+API documentation for follows and feed
+Authentication
+- Use token auth on all protected endpoints:
+- Headers:
+- Authorization: Token <your_token>
+- Content-Type: application/json
+Follow a user
+- POST /api/accounts/users/{id}/follow/
+- Description: Current user follows target user with id.
+- Responses:
+- 200: { "detail": "You now follow <username>." }
+- 400: { "detail": "You cannot follow yourself." }
+- 401: Unauthorized when not authenticated.
+Unfollow a user
+- POST /api/accounts/users/{id}/unfollow/
+- Description: Current user unfollows target user with id.
+- Responses:
+- 200: { "detail": "You unfollowed <username>." }
+- 400: { "detail": "You do not follow this user." }
+- 401: Unauthorized when not authenticated.
+Current user profile
+- GET /api/accounts/users/me/
+- Response example:
+{
+  "id": 1,
+  "username": "hamisi",
+  "followers_count": 5,
+  "following_count": 12
+}
+
+
+Feed of followed users’ posts
+- GET /api/posts/feed/
+- Description: Returns posts authored by users the current user follows, newest first.
+- Query params:
+- page, page_size (if pagination enabled)
+- Response example (paginated):
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 7,
+      "title": "From Bob",
+      "content": "Hello Alice",
+      "author": "bob",
+      "created_at": "2025-12-10T15:30:00Z",
+      "updated_at": "2025-12-10T15:30:00Z",
+      "comments_count": 0
+    }
+  ]
+}
+
+
+
+Notes and recommendations
+- Permissions: Actions require authentication; only the current user’s follow list is modified.
+- Constraints: Prevent self-follow; harmless to unfollow users not followed (returns 400 for clarity).
+- Performance: Consider prefetching related authors in feed if your dataset grows:
+qs = Post.objects.filter(author__in=followed_users).select_related('author').order_by('-created_at')
+- 
