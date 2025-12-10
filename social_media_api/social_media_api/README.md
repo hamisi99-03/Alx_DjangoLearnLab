@@ -132,3 +132,71 @@ Extend TokenView to return user profile details.
 Use Postman or curl for API testing.
 
 Ensure media files are served correctly for profile_picture uploads.
+
+
+testing results 
+Postman test
+login 
+{
+    "token": "2950b03c56e4019f4122b92a95665750f0e186f9"
+}
+create post 
+{
+    "id": 2,
+    "title": "post by job",
+    "content": "mehn i relly want an s1k",
+    "author": "job",
+    "created_at": "2025-12-10T13:37:28.959741Z",
+    "updated_at": "2025-12-10T13:37:28.959741Z"
+}
+
+lists posts
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 2,
+            "title": "post by job",
+            "content": "mehn i relly want an s1k",
+            "author": "job",
+            "created_at": "2025-12-10T13:37:28.959741Z",
+            "updated_at": "2025-12-10T13:37:28.959741Z"
+        },
+        {
+            "id": 1,
+            "title": "My First Post",
+            "content": "Hello world!",
+            "author": "hamisi",
+            "created_at": "2025-12-10T13:23:58.675816Z",
+            "updated_at": "2025-12-10T13:23:58.675816Z"
+        }
+    ]
+}
+
+search posts Get/api/posts/?search=Hello
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "title": "My First Post",
+            "content": "Hello world!",
+            "author": "hamisi",
+            "created_at": "2025-12-10T13:23:58.675816Z",
+            "updated_at": "2025-12-10T13:23:58.675816Z"
+        }
+    ]
+}
+create comment 
+{
+    "id": 2,
+    "post": 2,
+    "author": "job",
+    "content": "dreams",
+    "created_at": "2025-12-10T13:45:29.256942Z",
+    "updated_at": "2025-12-10T13:45:29.256942Z"
+}
