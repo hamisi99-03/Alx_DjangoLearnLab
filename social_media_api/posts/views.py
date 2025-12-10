@@ -2,11 +2,12 @@ from rest_framework import viewsets, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
+from .models import Post, Comment,Like
+from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from .permissions import IsOwnerOrReadOnly
 from .pagination import StandardResultsSetPagination
 
+from notifications.models import Notification
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -40,4 +41,15 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        # Create notification for post author
+
+        post = comment.post
+        if post.author != self.request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=self.request.user,
+                verb='commented on your post',
+                target_content_type=ContentType.objects.get_for_model(Post),
+                target_object_id=post.id,
+            )
