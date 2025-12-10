@@ -1,13 +1,20 @@
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, TokenView, UserViewSet
+from .views import UserViewSet, RegisterView, LoginView, TokenView
 
-routers = DefaultRouter()
-routers.register(r'users', UserViewSet, basename='user')
+router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
+    # Auth endpoints
+    path('register/', RegisterView.as_view({'post': 'create'}), name='register'),
     path('login/', LoginView.as_view(), name='login'),
-    path('profile/', TokenView.as_view(), name='profile'),
-    path('',include(routers.urls)),  # Include the UserViewSet routes
+    path('token/', TokenView.as_view(), name='token'),
+
+    # Follow management explicit paths
+    path('follow/<int:user_id>/', UserViewSet.as_view({'post': 'follow'}), name='follow'),
+    path('unfollow/<int:user_id>/', UserViewSet.as_view({'post': 'unfollow'}), name='unfollow'),
+
+    # Router endpoints (users/, users/{id}/ etc.)
+    path('', include(router.urls)),
 ]
