@@ -200,3 +200,156 @@ create comment
     "created_at": "2025-12-10T13:45:29.256942Z",
     "updated_at": "2025-12-10T13:45:29.256942Z"
 }
+
+Posts & Comments API Documentation
+🔑 Authentication
+- Method: Token Authentication
+- Header format:
+Authorization: Token <your_token>
+Content-Type: application/json
+- Obtain token via /api/token-auth/ (or your accounts login endpoint).
+- Without this header, protected endpoints will return:
+{ "detail": "Authentication credentials were not provided." }
+
+
+
+📌 Posts Endpoints
+1. List Posts
+- Endpoint: GET /api/posts/
+- Description: Retrieve all posts, paginated.
+- Query Parameters:
+- search → filter by title/content
+- page → page number
+- page_size → number of results per page
+- Response Example:
+lists posts
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 2,
+            "title": "post by job",
+            "content": "mehn i relly want an s1k",
+            "author": "job",
+            "created_at": "2025-12-10T13:37:28.959741Z",
+            "updated_at": "2025-12-10T13:37:28.959741Z"
+        },
+        {
+            "id": 1,
+            "title": "My First Post",
+            "content": "Hello world!",
+            "author": "hamisi",
+            "created_at": "2025-12-10T13:23:58.675816Z",
+            "updated_at": "2025-12-10T13:23:58.675816Z"
+        }
+    ]
+}
+
+
+
+2. Create Post
+- Endpoint: POST /api/posts/
+- Permissions: Authenticated users only.
+- Request Body:
+{
+  "title": "Post by job",
+  "content": "mehn i really want an s1k."
+}
+- Response Example:
+create post 
+{
+    "id": 2,
+    "title": "post by job",
+    "content": "mehn i relly want an s1k",
+    "author": "job",
+    "created_at": "2025-12-10T13:37:28.959741Z",
+    "updated_at": "2025-12-10T13:37:28.959741Z"
+}
+
+
+
+3. Retrieve Post
+- Endpoint: GET /api/posts/{id}/
+- Description: Get details of a single post.
+
+4. Update Post
+- Endpoint: PATCH /api/posts/{id}/
+- Permissions: Only the author can update.
+- Request Body:
+{
+  "title": "Updated Title"
+}
+
+
+
+5. Delete Post
+- Endpoint: DELETE /api/posts/{id}/
+- Permissions: Only the author can delete.
+
+💬 Comments Endpoints
+1. List Comments
+- Endpoint: GET /api/comments/
+- Description: Retrieve all comments, paginated.
+- Response Example:
+{
+  "count": 1,
+  "results": [
+    {
+      "id": 1,
+      "post": 1,
+      "author": "hamisi",
+      "content": "Nice post!",
+      "created_at": "2025-12-10T14:10:00Z",
+      "updated_at": "2025-12-10T14:10:00Z"
+    }
+  ]
+}
+
+
+
+2. Create Comment
+- Endpoint: POST /api/comments/
+- Permissions: Authenticated users only.
+- Request Body:
+{
+  "post": 2,
+  "content": "dreams"
+}
+- Response Example:
+create comment 
+{
+    "id": 2,
+    "post": 2,
+    "author": "job",
+    "content": "dreams",
+    "created_at": "2025-12-10T13:45:29.256942Z",
+    "updated_at": "2025-12-10T13:45:29.256942Z"
+}
+
+
+
+3. Retrieve Comment
+- Endpoint: GET /api/comments/{id}/
+- Description: Get details of a single comment.
+
+4. Update Comment
+- Endpoint: PATCH /api/comments/{id}/
+- Permissions: Only the author can update.
+- Request Body:
+{
+  "content": "Edited comment"
+}
+
+
+
+5. Delete Comment
+- Endpoint: DELETE /api/comments/{id}/
+- Permissions: Only the author can delete.
+
+⚙️ Pagination & Filtering
+- Pagination: ?page=2&page_size=5
+- Filtering (Posts only): ?search=keyword
+
+
