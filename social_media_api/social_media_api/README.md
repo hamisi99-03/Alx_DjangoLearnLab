@@ -415,3 +415,84 @@ Notes and recommendations
 - Performance: Consider prefetching related authors in feed if your dataset grows:
 qs = Post.objects.filter(author__in=followed_users).select_related('author').order_by('-created_at')
 - 
+
+Deployment Documentation — Social Media API (Heroku)
+1. Deployment Process
+Step 1: Prepare the Project
+- Installed required packages:
+- gunicorn (WSGI server for Heroku)
+- dj-database-url (parse Heroku’s DATABASE_URL)
+- whitenoise (serve static files)
+- Added requirements.txt with all dependencies.
+- Created Procfile:
+web: gunicorn social_media_api.wsgi
+
+
+Step 2: Configure Django Settings
+- Secret Key:
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
+- Set in Heroku config vars:
+heroku config:set SECRET_KEY='generated-secret' --app social-media-api-hamisi
+ Debug Mode:
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+- Configured in Heroku:
+heroku config:set DEBUG=False --app social-media-api-hamisi
+- Allowed Hosts:
+ALLOWED_HOSTS = os.environ.get(
+    'DJANGO_ALLOWED_HOSTS',
+    '.herokuapp.com,localhost,127.0.0.1'
+).split(',')
+- CSRF Trusted Origins:
+CSRF_TRUSTED_ORIGINS = [
+    'https://social-media-api-hamisi-927fdace5e92.herokuapp.com'
+]
+- Database:
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgres://localhost:5432/mydb'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+ Static Files:
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+Step 3: Push to Herokugit add .
+git commit -m "Configure settings for Heroku deployment"
+git push heroku master
+Step 4: Run Migrations and Create Superuserheroku run python manage.py migrate --app social-media-api-hamisi
+heroku run python manage.py createsuperuser --app social-media-api-hamisi
+2. Production Environment Configurations- Heroku Config Vars:
+- SECRET_KEY → secure, generated key
+- DEBUG → False
+- DATABASE_URL → auto‑injected by Heroku Postgres
+- DJANGO_ALLOWED_HOSTS → .herokuapp.com,localhost,127.0.0.1
+- Middleware:
+- django.middleware.security.SecurityMiddleware
+- django.middleware.csrf.CsrfViewMiddleware
+- whitenoise.middleware.WhiteNoiseMiddleware (if added for static files)
+- Authentication:
+- Token authentication enforced via DRF
+- Default permission: IsAuthenticated
+
+ Admin Panel- Accessed at:
+https://social-media-api-hamisi-927fdace5e92.herokuapp.com/admin/
+- Verified login works (no CSRF errors).
+- Confirmed superuser can manage models.
+ API Endpoints- /api/posts/ → returns JSON list of posts.
+- /api/comments/ → returns JSON list of comments.
+- Authentication required (401 Unauthorized if no token).
+- CRUD operations tested via Postman.
+ Database- Verified migrations applied successfully.
+- Created sample data via admin.
+- Confirmed API returns live data from Postgres.
+ Logsheroku logs --tail --app social-media-api-hamisi
+- No DisallowedHost or CSRF errors.
+- Requests served correctly.
+ Static Files- Confirmed CSS/JS loads in admin.
+- Whitenoise serving static assets.
+ Outcome- The app is live and stable on Heroku.
+- Admin and API endpoints are functional.
+- Environment variables secure sensitive data.
+- Final testing confirms production readiness.
+ 
