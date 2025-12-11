@@ -15,12 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to the Social Media API")
 
 urlpatterns = [
+    path('', home, name='home'),  # homepage route
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
-    path('api/', include('posts.urls', namespace='posts')),
+    path('api/', include(('posts.urls', 'posts'), namespace='posts')),  # namespace properly
     path('api/token-auth/', obtain_auth_token),
 ]
