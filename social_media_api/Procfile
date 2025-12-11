@@ -1,0 +1,1 @@
+web: waitress-serve --listen=0.0.0.0:$PORT social_media_api.wsgi:application
