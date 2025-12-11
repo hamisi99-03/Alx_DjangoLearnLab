@@ -119,3 +119,14 @@ REST_FRAMEWORK = {
 # Cookie security (safe for now, flip to True when HTTPS is enforced)
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
+
+# Security settings for production
+
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# Enable browser XSS protection
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevent the site from being embedded in iframes (clickjacking protection)
+X_FRAME_OPTIONS = 'DENY'
