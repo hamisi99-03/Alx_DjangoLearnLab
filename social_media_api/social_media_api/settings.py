@@ -130,3 +130,7 @@ SECURE_BROWSER_XSS_FILTER = True
 
 # Prevent the site from being embedded in iframes (clickjacking protection)
 X_FRAME_OPTIONS = 'DENY'
+
+
+# Port configuration (for deployment checkers)
+PORT = int(os.environ.get('PORT', 8000))
